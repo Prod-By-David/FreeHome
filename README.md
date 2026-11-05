@@ -20,21 +20,27 @@ FreeHome es una aplicación web dinámica (SPA) diseñada para centralizar, orga
 - Vista general del estado del hogar (métricas de tareas, lista de la compra, medicinas y hábitos).
 - Banners dinámicos para avisos urgentes (ej. medicamentos con stock bajo).
 - Resumen del menú diario y tareas prioritarias.
+
 **2. Tareas y Limpieza:**
 - Gestión de tareas por zonas (Cocina, Salón, Baño, Dormitorios, Exterior).
 - Filtrado por frecuencia (Diaria, Semanal, Mensual) y asignación de responsables.
+
 **3. Planificador de Comidas y Recetas:**
 - Menú semanal interactivo por días y tomas (Desayuno, Comida, Snack, Cena).
 - Libro de recetas favoritas.
 - Exportación automática: Añade ingredientes del menú a la lista de compra con un solo clic.
+
 **4. Lista de la Compra Inteligente:**
 - Organización por secciones/pasillos (Frescos, Despensa, Limpieza, Farmacia).
 - Cálculo automático del presupuesto total estimado.
+
 **5. Rutinas Diarias y Hábitos:**
 - Seguimiento de rutinas de Mañana y Noche con contador de racha (streak).
+
 **6. Botiquín y Salud:**
 - Control de inventario de medicamentos, dosis, horarios y fechas de caducidad.
 - Alerta visual automática para stock crítico (≤ 5 unidades).
+
 **7. Proyectos del Hogar (Kanban):**
 - Control de inventario de medicamentos, dosis, horarios y fechas de caducidad.
 - Tablero Kanban interactivo para mejoras y remodelaciones con columnas Por Hacer, En Proceso y Completado.
