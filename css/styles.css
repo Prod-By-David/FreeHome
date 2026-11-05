@@ -1,0 +1,52 @@
+body {
+    font-family: 'Plus Jakarta Sans', sans-serif;
+    background-color: #FAF8F5;
+}
+
+.dark body {
+    background-color: #0B0C12;
+}
+
+/* Glassmorphism Cards */
+.glass-card {
+    background: rgba(255, 255, 255, 0.88);
+    backdrop-filter: blur(16px);
+    -webkit-backdrop-filter: blur(16px);
+    border: 1px solid rgba(224, 122, 95, 0.08);
+}
+
+.dark .glass-card {
+    background: rgba(31, 34, 46, 0.85);
+    backdrop-filter: blur(16px);
+    -webkit-backdrop-filter: blur(16px);
+    border: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+/* Custom Scrollbars */
+::-webkit-scrollbar {
+    width: 5px;
+    height: 5px;
+}
+
+::-webkit-scrollbar-track {
+    background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+    background: #D4A373;
+    border-radius: 9999px;
+}
+
+/* Active Navigation Tabs */
+.active-tab {
+    background-color: rgba(224, 122, 95, 0.12);
+    color: #E07A5F !important;
+    border-right: 3px solid #E07A5F;
+    font-weight: 700;
+}
+
+.dark .active-tab {
+    background-color: rgba(224, 122, 95, 0.2);
+    color: #F9EBE7 !important;
+    border-right: 3px solid #E07A5F;
+}

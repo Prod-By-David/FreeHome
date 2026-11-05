@@ -1,0 +1,694 @@
+<!DOCTYPE html>
+<html lang="es" class="h-full">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>FreeHome - Organización y Gestión Inteligente del Hogar</title>
+    
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    colors: {
+                        cream: {
+                            50: '#FFFFFF',
+                            100: '#FAF8F5',
+                            200: '#F3EFE9',
+                            300: '#E6DFD5',
+                        },
+                        terracotta: {
+                            100: '#F9EBE7',
+                            400: '#E8927C',
+                            500: '#E07A5F',
+                            600: '#C86248',
+                            700: '#A34832',
+                        },
+                        sage: {
+                            100: '#EDF4F0',
+                            300: '#B8D5C7',
+                            500: '#81B29A',
+                            600: '#64977F',
+                            700: '#4A7561',
+                        },
+                        sand: {
+                            200: '#E8E1D7',
+                            400: '#D4A373',
+                            500: '#CCD5AE',
+                        },
+                        charcoal: {
+                            700: '#2D3142',
+                            800: '#1F222E',
+                            900: '#14161F',
+                            950: '#0B0C12'
+                        }
+                    },
+                    fontFamily: {
+                        sans: ['Plus Jakarta Sans', 'Inter', 'sans-serif'],
+                    }
+                }
+            }
+        }
+    </script>
+    
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    
+    <!-- FontAwesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <!-- Custom CSS -->
+    <link rel="stylesheet" href="css/styles.css">
+</head>
+<body class="text-charcoal-700 dark:text-slate-100 h-full flex flex-col md:flex-row overflow-hidden transition-colors duration-300">
+
+    <!-- Toast Notification Container -->
+    <div id="toast-container" class="fixed top-5 right-5 z-50 flex flex-col gap-2 pointer-events-none"></div>
+
+    <!-- Sidebar Navigation (Desktop) -->
+    <aside class="w-full md:w-72 bg-cream-50/90 dark:bg-charcoal-900/90 backdrop-blur-lg border-r border-sand-200/60 dark:border-slate-800/80 flex flex-col justify-between shrink-0 z-30 transition-all">
+        <div>
+            <!-- Header Brand -->
+            <div class="p-6 flex items-center justify-between border-b border-sand-200/40 dark:border-slate-800/60">
+                <div class="flex items-center gap-3">
+                    <div class="w-11 h-11 rounded-2xl bg-gradient-to-br from-terracotta-500 via-sand-400 to-sage-500 flex items-center justify-center text-white shadow-md shadow-terracotta-500/20">
+                        <i class="fa-solid fa-leaf text-xl"></i>
+                    </div>
+                    <div>
+                        <h1 class="font-extrabold text-xl tracking-tight text-charcoal-700 dark:text-white leading-none">FreeHome</h1>
+                        <span class="text-[11px] text-terracotta-500 font-semibold uppercase tracking-wider">Hogar en Armonía</span>
+                    </div>
+                </div>
+                <button id="theme-toggle" class="p-2.5 rounded-xl text-slate-400 hover:text-terracotta-500 hover:bg-cream-200 dark:hover:bg-charcoal-800 transition-all">
+                    <i class="fa-solid fa-moon dark:hidden text-lg"></i>
+                    <i class="fa-solid fa-sun hidden dark:block text-amber-400 text-lg"></i>
+                </button>
+            </div>
+
+            <!-- Quick Add Global CTA Button -->
+            <div class="px-5 pt-5 pb-2">
+                <button onclick="openQuickAddModal()" class="w-full py-3 px-4 bg-gradient-to-r from-terracotta-500 to-terracotta-600 hover:from-terracotta-600 hover:to-terracotta-700 text-white rounded-2xl font-bold text-sm shadow-md shadow-terracotta-500/20 flex items-center justify-center gap-2 transition-all transform active:scale-95">
+                    <i class="fa-solid fa-circle-plus text-base"></i>
+                    <span>Añadir Rápido</span>
+                </button>
+            </div>
+
+            <!-- Nav Links -->
+            <nav class="mt-2 px-3 space-y-1" id="main-nav">
+                <button data-tab="dashboard" class="nav-btn active-tab w-full flex items-center gap-3.5 px-4 py-3 rounded-xl font-medium text-sm transition-all duration-200">
+                    <i class="fa-solid fa-house-chimney w-5 text-center text-base"></i> Dashboard
+                </button>
+                <button data-tab="tasks" class="nav-btn w-full flex items-center gap-3.5 px-4 py-3 rounded-xl font-medium text-sm text-slate-600 dark:text-slate-300 hover:bg-cream-200/60 dark:hover:bg-charcoal-800/60 transition-all">
+                    <i class="fa-solid fa-broom-ball w-5 text-center text-base"></i> Tareas y Limpieza
+                </button>
+                <button data-tab="meals" class="nav-btn w-full flex items-center gap-3.5 px-4 py-3 rounded-xl font-medium text-sm text-slate-600 dark:text-slate-300 hover:bg-cream-200/60 dark:hover:bg-charcoal-800/60 transition-all">
+                    <i class="fa-solid fa-utensils w-5 text-center text-base"></i> Comidas y Recetas
+                </button>
+                <button data-tab="shopping" class="nav-btn w-full flex items-center gap-3.5 px-4 py-3 rounded-xl font-medium text-sm text-slate-600 dark:text-slate-300 hover:bg-cream-200/60 dark:hover:bg-charcoal-800/60 transition-all">
+                    <i class="fa-solid fa-basket-shopping w-5 text-center text-base"></i> Lista de Compra
+                </button>
+                <button data-tab="routines" class="nav-btn w-full flex items-center gap-3.5 px-4 py-3 rounded-xl font-medium text-sm text-slate-600 dark:text-slate-300 hover:bg-cream-200/60 dark:hover:bg-charcoal-800/60 transition-all">
+                    <i class="fa-solid fa-clock-rotate-left w-5 text-center text-base"></i> Rutinas Diarias
+                </button>
+                <button data-tab="health" class="nav-btn w-full flex items-center gap-3.5 px-4 py-3 rounded-xl font-medium text-sm text-slate-600 dark:text-slate-300 hover:bg-cream-200/60 dark:hover:bg-charcoal-800/60 transition-all">
+                    <i class="fa-solid fa-pills w-5 text-center text-base"></i> Botiquín y Salud
+                </button>
+                <button data-tab="projects" class="nav-btn w-full flex items-center gap-3.5 px-4 py-3 rounded-xl font-medium text-sm text-slate-600 dark:text-slate-300 hover:bg-cream-200/60 dark:hover:bg-charcoal-800/60 transition-all">
+                    <i class="fa-solid fa-list-check w-5 text-center text-base"></i> Proyectos del Hogar
+                </button>
+            </nav>
+        </div>
+    </aside>
+
+    <!-- Main Dynamic Content Area -->
+    <main class="flex-1 overflow-y-auto p-4 md:p-8 space-y-6 pb-24 md:pb-8">
+
+        <!-- MODULE 1: DASHBOARD -->
+        <section id="module-dashboard" class="tab-content space-y-6">
+            <header class="flex flex-col md:flex-row md:items-center justify-between gap-4">
+                <div>
+                    <h2 class="text-2xl md:text-3xl font-extrabold tracking-tight text-charcoal-700 dark:text-white">¡Bienvenido a FreeHome! 🏡</h2>
+                    <p class="text-sm text-slate-500 dark:text-slate-400">Tu espacio en blanco listo para organizar tu hogar paso a paso.</p>
+                </div>
+                <div class="flex items-center gap-3">
+                    <span id="current-date-badge" class="px-4 py-2 rounded-2xl glass-card text-xs font-bold text-slate-600 dark:text-slate-300 shadow-sm border border-sand-200/80 dark:border-slate-800">
+                        <i class="fa-regular fa-calendar-days text-terracotta-500 mr-2"></i> Cargando fecha...
+                    </span>
+                </div>
+            </header>
+
+            <!-- Urgent Reminders Banner -->
+            <div id="dash-urgent-banner" class="hidden p-4 rounded-2xl bg-gradient-to-r from-terracotta-100 to-amber-100 dark:from-terracotta-700/30 dark:to-amber-700/30 border border-terracotta-400/40 flex items-center justify-between">
+                <div class="flex items-center gap-3">
+                    <div class="w-10 h-10 rounded-xl bg-terracotta-500 text-white flex items-center justify-center shrink-0">
+                        <i class="fa-solid fa-bell text-lg"></i>
+                    </div>
+                    <div>
+                        <h4 class="font-bold text-sm text-terracotta-700 dark:text-terracotta-100" id="urgent-title">Aviso Pendiente</h4>
+                        <p class="text-xs text-charcoal-700 dark:text-slate-300" id="urgent-desc">Tienes alertas en el botiquín o medicamentos próximos a caducar.</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Progress Ring Grid -->
+            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+                <div class="glass-card p-5 rounded-2xl shadow-sm border border-sand-200/60 dark:border-slate-800 flex items-center justify-between">
+                    <div>
+                        <span class="text-xs font-semibold text-slate-400 uppercase tracking-wider">Tareas Pendientes</span>
+                        <div class="mt-2 flex items-baseline gap-2">
+                            <span id="dash-tasks-count" class="text-3xl font-extrabold">0</span>
+                            <span class="text-xs text-slate-400">por hacer</span>
+                        </div>
+                    </div>
+                    <div class="w-12 h-12 rounded-2xl bg-terracotta-100 dark:bg-terracotta-700/20 text-terracotta-500 flex items-center justify-center">
+                        <i class="fa-solid fa-list-check text-xl"></i>
+                    </div>
+                </div>
+
+                <div class="glass-card p-5 rounded-2xl shadow-sm border border-sand-200/60 dark:border-slate-800 flex items-center justify-between">
+                    <div>
+                        <span class="text-xs font-semibold text-slate-400 uppercase tracking-wider">Falta en Compra</span>
+                        <div class="mt-2 flex items-baseline gap-2">
+                            <span id="dash-shopping-count" class="text-3xl font-extrabold">0</span>
+                            <span class="text-xs text-slate-400">artículos</span>
+                        </div>
+                    </div>
+                    <div class="w-12 h-12 rounded-2xl bg-sage-100 dark:bg-sage-700/20 text-sage-600 flex items-center justify-center">
+                        <i class="fa-solid fa-basket-shopping text-xl"></i>
+                    </div>
+                </div>
+
+                <div class="glass-card p-5 rounded-2xl shadow-sm border border-sand-200/60 dark:border-slate-800 flex items-center justify-between">
+                    <div>
+                        <span class="text-xs font-semibold text-slate-400 uppercase tracking-wider">Medicinas Hoy</span>
+                        <div class="mt-2 flex items-baseline gap-2">
+                            <span id="dash-meds-count" class="text-3xl font-extrabold">0</span>
+                            <span class="text-xs text-slate-400">pendientes</span>
+                        </div>
+                    </div>
+                    <div class="w-12 h-12 rounded-2xl bg-amber-100 dark:bg-amber-700/20 text-amber-600 flex items-center justify-center">
+                        <i class="fa-solid fa-capsules text-xl"></i>
+                    </div>
+                </div>
+
+                <div class="glass-card p-5 rounded-2xl shadow-sm border border-sand-200/60 dark:border-slate-800 flex items-center justify-between">
+                    <div>
+                        <span class="text-xs font-semibold text-slate-400 uppercase tracking-wider">Rutinas Diarias</span>
+                        <div class="mt-2 flex items-baseline gap-2">
+                            <span id="dash-routines-pct" class="text-3xl font-extrabold">0%</span>
+                            <span class="text-xs text-slate-400">completado</span>
+                        </div>
+                    </div>
+                    <div class="w-12 h-12 rounded-2xl bg-sand-200 dark:bg-charcoal-800 text-sand-500 flex items-center justify-center">
+                        <i class="fa-solid fa-clock-rotate-left text-xl"></i>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Split View Content -->
+            <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                <!-- Today Meal Summary -->
+                <div class="glass-card p-6 rounded-2xl space-y-4 border border-sand-200/60 dark:border-slate-800">
+                    <div class="flex items-center justify-between border-b border-sand-200/60 dark:border-slate-800 pb-3">
+                        <h3 class="font-bold text-base flex items-center gap-2">
+                            <i class="fa-solid fa-utensils text-terracotta-500"></i> Menú de Hoy
+                        </h3>
+                        <button onclick="switchTab('meals')" class="text-xs font-bold text-terracotta-500 hover:underline">Planificar</button>
+                    </div>
+                    <div id="dash-today-meals-list" class="space-y-3">
+                        <!-- Injected via JS -->
+                    </div>
+                </div>
+
+                <!-- Priority Tasks Card -->
+                <div class="glass-card p-6 rounded-2xl space-y-4 lg:col-span-2 border border-sand-200/60 dark:border-slate-800">
+                    <div class="flex items-center justify-between border-b border-sand-200/60 dark:border-slate-800 pb-3">
+                        <h3 class="font-bold text-base flex items-center gap-2">
+                            <i class="fa-solid fa-fire text-amber-500"></i> Tareas Prioritarias
+                        </h3>
+                        <button onclick="switchTab('tasks')" class="text-xs font-bold text-terracotta-500 hover:underline">Gestionar Tareas</button>
+                    </div>
+                    <div id="dash-priority-tasks-list" class="space-y-2">
+                        <!-- Injected via JS -->
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- MODULE 2: TAREAS Y LIMPIEZA -->
+        <section id="module-tasks" class="tab-content hidden space-y-6">
+            <header class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+                <div>
+                    <h2 class="text-2xl font-extrabold tracking-tight">Tareas y Limpieza del Hogar</h2>
+                    <p class="text-sm text-slate-500 dark:text-slate-400">Planificación por zonas, frecuencias y responsables.</p>
+                </div>
+                <button onclick="openModal('modal-task')" class="px-4 py-2.5 bg-terracotta-500 hover:bg-terracotta-600 text-white rounded-xl text-xs font-bold shadow-md shadow-terracotta-500/20 flex items-center gap-2 transition-all">
+                    <i class="fa-solid fa-plus"></i> Nueva Tarea
+                </button>
+            </header>
+
+            <div class="glass-card p-4 rounded-2xl flex flex-wrap gap-3 items-center justify-between border border-sand-200/60 dark:border-slate-800">
+                <div class="flex flex-wrap gap-2 items-center">
+                    <select id="task-filter-room" onchange="renderTasks()" class="bg-white dark:bg-charcoal-900 text-xs font-medium border border-sand-200 dark:border-slate-700 rounded-xl px-3 py-2 outline-none">
+                        <option value="all">Todas las Zonas</option>
+                        <option value="Cocina">Cocina</option>
+                        <option value="Salón">Salón</option>
+                        <option value="Baño">Baño</option>
+                        <option value="Dormitorios">Dormitorios</option>
+                        <option value="Exterior">Exterior / Jardín</option>
+                    </select>
+                    <select id="task-filter-freq" onchange="renderTasks()" class="bg-white dark:bg-charcoal-900 text-xs font-medium border border-sand-200 dark:border-slate-700 rounded-xl px-3 py-2 outline-none">
+                        <option value="all">Todas las Frecuencias</option>
+                        <option value="Diaria">Diarias</option>
+                        <option value="Semanal">Semanales</option>
+                        <option value="Mensual">Mensuales</option>
+                    </select>
+                </div>
+                <div id="tasks-badge-count" class="text-xs font-bold text-slate-400">
+                    0 Tareas
+                </div>
+            </div>
+
+            <div id="tasks-container" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                <!-- JS Populated -->
+            </div>
+        </section>
+
+        <!-- MODULE 3: COMIDAS Y RECETAS -->
+        <section id="module-meals" class="tab-content hidden space-y-6">
+            <header class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+                <div>
+                    <h2 class="text-2xl font-extrabold tracking-tight">Planificador de Comidas y Recetas</h2>
+                    <p class="text-sm text-slate-500 dark:text-slate-400">Organiza tu menú semanal (desayuno, almuerzo, cena y snacks) y añade tus recetas preferidas.</p>
+                </div>
+                <div class="flex flex-wrap gap-2">
+                    <button onclick="openModal('modal-recipe')" class="px-4 py-2.5 bg-terracotta-500 hover:bg-terracotta-600 text-white rounded-xl text-xs font-bold shadow-md shadow-terracotta-500/20 flex items-center gap-2 transition-all">
+                        <i class="fa-solid fa-plus"></i> Nueva Receta
+                    </button>
+                    <button onclick="generateShoppingFromMeals()" class="px-4 py-2.5 bg-sage-500 hover:bg-sage-600 text-white rounded-xl text-xs font-bold shadow-md shadow-sage-500/20 flex items-center gap-2 transition-all">
+                        <i class="fa-solid fa-cart-plus"></i> Exportar a Lista de Compra
+                    </button>
+                </div>
+            </header>
+
+            <!-- Weekly Meal Planner -->
+            <div class="overflow-x-auto pb-4">
+                <div id="meal-grid" class="min-w-[950px] grid grid-cols-7 gap-3">
+                    <!-- Dynamic Days -->
+                </div>
+            </div>
+
+            <!-- Saved Recipes Section -->
+            <div class="space-y-4 pt-4">
+                <h3 class="font-bold text-lg flex items-center gap-2">
+                    <i class="fa-solid fa-book-bookmark text-terracotta-500"></i> Recetas Guardadas
+                </h3>
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-4" id="recipes-container">
+                    <!-- JS Populated -->
+                </div>
+            </div>
+        </section>
+
+        <!-- MODULE 4: LISTA DE LA COMPRA -->
+        <section id="module-shopping" class="tab-content hidden space-y-6">
+            <header class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+                <div>
+                    <h2 class="text-2xl font-extrabold tracking-tight">Lista de la Compra Inteligente</h2>
+                    <p class="text-sm text-slate-500 dark:text-slate-400">Control organizado por pasillos/secciones y estimación de presupuesto total.</p>
+                </div>
+                <button onclick="openModal('modal-shopping')" class="px-4 py-2.5 bg-terracotta-500 hover:bg-terracotta-600 text-white rounded-xl text-xs font-bold shadow-md flex items-center gap-2">
+                    <i class="fa-solid fa-plus"></i> Añadir Artículo
+                </button>
+            </header>
+
+            <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                <div class="glass-card p-4 rounded-2xl flex items-center justify-between border border-sand-200/60 dark:border-slate-800">
+                    <div>
+                        <span class="text-xs font-semibold text-slate-400 uppercase">Presupuesto Estimado</span>
+                        <div id="shopping-total-price" class="text-2xl font-extrabold text-charcoal-700 dark:text-white">0.00 €</div>
+                    </div>
+                    <i class="fa-solid fa-coins text-2xl text-amber-500"></i>
+                </div>
+                <div class="glass-card p-4 rounded-2xl flex items-center justify-between border border-sand-200/60 dark:border-slate-800">
+                    <div>
+                        <span class="text-xs font-semibold text-slate-400 uppercase">Comprados</span>
+                        <div id="shopping-bought-progress" class="text-2xl font-extrabold text-charcoal-700 dark:text-white">0 / 0</div>
+                    </div>
+                    <i class="fa-solid fa-basket-shopping text-2xl text-sage-500"></i>
+                </div>
+                <button onclick="clearBoughtShopping()" class="glass-card p-4 rounded-2xl border border-rose-200 dark:border-rose-900/50 hover:bg-rose-50 dark:hover:bg-rose-950/20 text-rose-500 font-bold text-xs flex items-center justify-center gap-2 transition-all">
+                    <i class="fa-solid fa-trash-can"></i> Limpiar Comprados
+                </button>
+            </div>
+
+            <div id="shopping-categories-grid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+                <!-- Dynamic categories -->
+            </div>
+        </section>
+
+        <!-- MODULE 5: RUTINAS DIARIAS Y HÁBITOS -->
+        <section id="module-routines" class="tab-content hidden space-y-6">
+            <header class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+                <div>
+                    <h2 class="text-2xl font-extrabold tracking-tight">Rutinas y Hábitos Diarios</h2>
+                    <p class="text-sm text-slate-500 dark:text-slate-400">Haz seguimiento de tus hábitos de Mañana y Noche y mantén viva tu racha (streak).</p>
+                </div>
+                <button onclick="openModal('modal-routine')" class="px-4 py-2.5 bg-terracotta-500 hover:bg-terracotta-600 text-white rounded-xl text-xs font-bold shadow-md flex items-center gap-2">
+                    <i class="fa-solid fa-plus"></i> Nueva Rutina
+                </button>
+            </header>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <!-- Morning -->
+                <div class="glass-card p-6 rounded-2xl space-y-4 border border-sand-200/60 dark:border-slate-800">
+                    <div class="flex items-center justify-between border-b border-sand-200/60 dark:border-slate-800 pb-3">
+                        <h3 class="font-bold flex items-center gap-2 text-base">
+                            <i class="fa-solid fa-sun text-amber-500 text-lg"></i> Rutina de Mañana
+                        </h3>
+                        <span id="morning-count-badge" class="text-xs font-bold px-2.5 py-1 rounded-full bg-amber-500/10 text-amber-600">0/0</span>
+                    </div>
+                    <div id="morning-routines-container" class="space-y-3">
+                        <!-- Items -->
+                    </div>
+                </div>
+
+                <!-- Evening -->
+                <div class="glass-card p-6 rounded-2xl space-y-4 border border-sand-200/60 dark:border-slate-800">
+                    <div class="flex items-center justify-between border-b border-sand-200/60 dark:border-slate-800 pb-3">
+                        <h3 class="font-bold flex items-center gap-2 text-base">
+                            <i class="fa-solid fa-moon text-indigo-400 text-lg"></i> Rutina de Noche
+                        </h3>
+                        <span id="evening-count-badge" class="text-xs font-bold px-2.5 py-1 rounded-full bg-indigo-500/10 text-indigo-400">0/0</span>
+                    </div>
+                    <div id="evening-routines-container" class="space-y-3">
+                        <!-- Items -->
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- MODULE 6: BOTIQUÍN Y SALUD -->
+        <section id="module-health" class="tab-content hidden space-y-6">
+            <header class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+                <div>
+                    <h2 class="text-2xl font-extrabold tracking-tight">Botiquín y Salud</h2>
+                    <p class="text-sm text-slate-500 dark:text-slate-400">Control de medicación activa, tomas diarias, fechas de caducidad y alertas de stock bajo.</p>
+                </div>
+                <button onclick="openModal('modal-med')" class="px-4 py-2.5 bg-terracotta-500 hover:bg-terracotta-600 text-white rounded-xl text-xs font-bold shadow-md flex items-center gap-2">
+                    <i class="fa-solid fa-plus"></i> Registrar Medicina
+                </button>
+            </header>
+
+            <div id="meds-container" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                <!-- JS Populated -->
+            </div>
+        </section>
+
+        <!-- MODULE 7: PROYECTOS DEL HOGAR (KANBAN) -->
+        <section id="module-projects" class="tab-content hidden space-y-6">
+            <header class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+                <div>
+                    <h2 class="text-2xl font-extrabold tracking-tight">Proyectos y Mejoras del Hogar</h2>
+                    <p class="text-sm text-slate-500 dark:text-slate-400">Planifica remodelaciones, pintura, mantenimiento y compras grandes.</p>
+                </div>
+                <button onclick="openModal('modal-project')" class="px-4 py-2.5 bg-terracotta-500 hover:bg-terracotta-600 text-white rounded-xl text-xs font-bold shadow-md flex items-center gap-2">
+                    <i class="fa-solid fa-plus"></i> Nuevo Proyecto
+                </button>
+            </header>
+
+            <!-- Kanban Board Grid -->
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                <!-- Por Hacer -->
+                <div class="glass-card p-4 rounded-2xl space-y-3 border border-sand-200/60 dark:border-slate-800">
+                    <div class="flex items-center justify-between font-bold text-sm border-b border-sand-200/60 dark:border-slate-800 pb-2">
+                        <span class="flex items-center gap-2"><i class="fa-solid fa-lightbulb text-amber-500"></i> Por Hacer</span>
+                        <span id="proj-todo-count" class="text-xs bg-amber-500/10 text-amber-600 px-2 py-0.5 rounded-full">0</span>
+                    </div>
+                    <div id="proj-col-todo" class="space-y-3 min-h-[150px]"></div>
+                </div>
+
+                <!-- En Proceso -->
+                <div class="glass-card p-4 rounded-2xl space-y-3 border border-sand-200/60 dark:border-slate-800">
+                    <div class="flex items-center justify-between font-bold text-sm border-b border-sand-200/60 dark:border-slate-800 pb-2">
+                        <span class="flex items-center gap-2"><i class="fa-solid fa-hammer text-terracotta-500"></i> En Proceso</span>
+                        <span id="proj-doing-count" class="text-xs bg-terracotta-500/10 text-terracotta-500 px-2 py-0.5 rounded-full">0</span>
+                    </div>
+                    <div id="proj-col-doing" class="space-y-3 min-h-[150px]"></div>
+                </div>
+
+                <!-- Completados -->
+                <div class="glass-card p-4 rounded-2xl space-y-3 border border-sand-200/60 dark:border-slate-800">
+                    <div class="flex items-center justify-between font-bold text-sm border-b border-sand-200/60 dark:border-slate-800 pb-2">
+                        <span class="flex items-center gap-2"><i class="fa-solid fa-circle-check text-sage-600"></i> Completado</span>
+                        <span id="proj-done-count" class="text-xs bg-sage-500/10 text-sage-600 px-2 py-0.5 rounded-full">0</span>
+                    </div>
+                    <div id="proj-col-done" class="space-y-3 min-h-[150px]"></div>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <!-- Mobile Navigation Bottom Bar -->
+    <div class="md:hidden fixed bottom-0 left-0 right-0 glass-card border-t border-sand-200 dark:border-slate-800 px-2 py-2 flex items-center justify-around z-40 shadow-lg">
+        <button onclick="switchTab('dashboard')" class="mobile-nav-btn flex flex-col items-center gap-1 text-[10px] font-bold text-slate-500 active:text-terracotta-500">
+            <i class="fa-solid fa-house-chimney text-base"></i> Home
+        </button>
+        <button onclick="switchTab('tasks')" class="mobile-nav-btn flex flex-col items-center gap-1 text-[10px] font-bold text-slate-500 active:text-terracotta-500">
+            <i class="fa-solid fa-broom-ball text-base"></i> Tareas
+        </button>
+        <button onclick="openQuickAddModal()" class="w-10 h-10 rounded-full bg-terracotta-500 text-white flex items-center justify-center shadow-lg transform -translate-y-2">
+            <i class="fa-solid fa-plus text-lg"></i>
+        </button>
+        <button onclick="switchTab('meals')" class="mobile-nav-btn flex flex-col items-center gap-1 text-[10px] font-bold text-slate-500 active:text-terracotta-500">
+            <i class="fa-solid fa-utensils text-base"></i> Comidas
+        </button>
+        <button onclick="switchTab('shopping')" class="mobile-nav-btn flex flex-col items-center gap-1 text-[10px] font-bold text-slate-500 active:text-terracotta-500">
+            <i class="fa-solid fa-basket-shopping text-base"></i> Compra
+        </button>
+    </div>
+
+    <!-- MODALES -->
+    <!-- MODAL: QUICK ADD GLOBAL -->
+    <div id="modal-quick-add" class="fixed inset-0 z-50 hidden flex items-center justify-center p-4 bg-charcoal-900/50 backdrop-blur-sm">
+        <div class="glass-card bg-white dark:bg-charcoal-900 w-full max-w-sm rounded-3xl p-6 shadow-2xl border border-sand-200 dark:border-slate-800 space-y-4">
+            <h3 class="text-lg font-bold text-center">¿Qué quieres añadir?</h3>
+            <div class="grid grid-cols-2 gap-3 pt-2">
+                <button onclick="closeModal('modal-quick-add'); openModal('modal-task');" class="p-4 rounded-2xl bg-terracotta-100/60 dark:bg-charcoal-800 hover:bg-terracotta-500 hover:text-white flex flex-col items-center gap-2 transition-all">
+                    <i class="fa-solid fa-list-check text-2xl text-terracotta-500"></i>
+                    <span class="text-xs font-bold">Tarea</span>
+                </button>
+                <button onclick="closeModal('modal-quick-add'); openModal('modal-shopping');" class="p-4 rounded-2xl bg-sage-100/60 dark:bg-charcoal-800 hover:bg-sage-500 hover:text-white flex flex-col items-center gap-2 transition-all">
+                    <i class="fa-solid fa-basket-shopping text-2xl text-sage-600"></i>
+                    <span class="text-xs font-bold">Artículo Compra</span>
+                </button>
+                <button onclick="closeModal('modal-quick-add'); openModal('modal-med');" class="p-4 rounded-2xl bg-amber-100/60 dark:bg-charcoal-800 hover:bg-amber-500 hover:text-white flex flex-col items-center gap-2 transition-all">
+                    <i class="fa-solid fa-capsules text-2xl text-amber-600"></i>
+                    <span class="text-xs font-bold">Medicina</span>
+                </button>
+                <button onclick="closeModal('modal-quick-add'); openModal('modal-project');" class="p-4 rounded-2xl bg-sand-200/60 dark:bg-charcoal-800 hover:bg-sand-400 hover:text-white flex flex-col items-center gap-2 transition-all">
+                    <i class="fa-solid fa-hammer text-2xl text-sand-500"></i>
+                    <span class="text-xs font-bold">Proyecto</span>
+                </button>
+            </div>
+            <button onclick="closeModal('modal-quick-add')" class="w-full py-2 text-xs font-bold text-slate-400 hover:underline text-center">Cancelar</button>
+        </div>
+    </div>
+
+    <!-- MODAL: NUEVA TAREA -->
+    <div id="modal-task" class="fixed inset-0 z-50 hidden flex items-center justify-center p-4 bg-charcoal-900/50 backdrop-blur-sm">
+        <div class="glass-card bg-white dark:bg-charcoal-900 w-full max-w-md rounded-3xl p-6 shadow-2xl border border-sand-200 dark:border-slate-800 space-y-4">
+            <h3 class="text-lg font-bold">Nueva Tarea de Limpieza</h3>
+            <form id="form-task" onsubmit="handleAddTask(event)" class="space-y-3">
+                <div>
+                    <label class="text-xs font-bold text-slate-500">Título</label>
+                    <input required type="text" id="task-title" placeholder="Ej. Limpiar cristales" class="w-full mt-1 bg-cream-100 dark:bg-charcoal-950 border border-sand-200 dark:border-slate-700 rounded-xl px-3 py-2 text-sm outline-none">
+                </div>
+                <div class="grid grid-cols-2 gap-3">
+                    <div>
+                        <label class="text-xs font-bold text-slate-500">Zona</label>
+                        <select id="task-room" class="w-full mt-1 bg-cream-100 dark:bg-charcoal-950 border border-sand-200 dark:border-slate-700 rounded-xl px-3 py-2 text-sm outline-none">
+                            <option value="Cocina">Cocina</option>
+                            <option value="Salón">Salón</option>
+                            <option value="Baño">Baño</option>
+                            <option value="Dormitorios">Dormitorios</option>
+                            <option value="Exterior">Exterior</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="text-xs font-bold text-slate-500">Frecuencia</label>
+                        <select id="task-freq" class="w-full mt-1 bg-cream-100 dark:bg-charcoal-950 border border-sand-200 dark:border-slate-700 rounded-xl px-3 py-2 text-sm outline-none">
+                            <option value="Diaria">Diaria</option>
+                            <option value="Semanal">Semanal</option>
+                            <option value="Mensual">Mensual</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="grid grid-cols-2 gap-3">
+                    <div>
+                        <label class="text-xs font-bold text-slate-500">Responsable</label>
+                        <input type="text" id="task-assignee" placeholder="Ej. Alex" class="w-full mt-1 bg-cream-100 dark:bg-charcoal-950 border border-sand-200 dark:border-slate-700 rounded-xl px-3 py-2 text-sm outline-none">
+                    </div>
+                    <div>
+                        <label class="text-xs font-bold text-slate-500">Prioridad</label>
+                        <select id="task-priority" class="w-full mt-1 bg-cream-100 dark:bg-charcoal-950 border border-sand-200 dark:border-slate-700 rounded-xl px-3 py-2 text-sm outline-none">
+                            <option value="Baja">Baja</option>
+                            <option value="Media">Media</option>
+                            <option value="Alta">Alta</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="flex justify-end gap-2 pt-3">
+                    <button type="button" onclick="closeModal('modal-task')" class="px-4 py-2 rounded-xl text-xs font-bold text-slate-400">Cancelar</button>
+                    <button type="submit" class="px-4 py-2 bg-terracotta-500 text-white rounded-xl text-xs font-bold shadow-md">Guardar Tarea</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- MODAL: RECETA -->
+    <div id="modal-recipe" class="fixed inset-0 z-50 hidden flex items-center justify-center p-4 bg-charcoal-900/50 backdrop-blur-sm">
+        <div class="glass-card bg-white dark:bg-charcoal-900 w-full max-w-md rounded-3xl p-6 shadow-2xl border border-sand-200 dark:border-slate-800 space-y-4">
+            <h3 class="text-lg font-bold">Nueva Receta Favorita</h3>
+            <form id="form-recipe" onsubmit="handleAddRecipe(event)" class="space-y-3">
+                <div>
+                    <label class="text-xs font-bold text-slate-500">Nombre de la Receta</label>
+                    <input required type="text" id="recipe-title" placeholder="Ej. Paella de verduras" class="w-full mt-1 bg-cream-100 dark:bg-charcoal-950 border border-sand-200 dark:border-slate-700 rounded-xl px-3 py-2 text-sm outline-none">
+                </div>
+                <div>
+                    <label class="text-xs font-bold text-slate-500">Tiempo de Preparación</label>
+                    <input required type="text" id="recipe-prep" placeholder="Ej. 30 min" class="w-full mt-1 bg-cream-100 dark:bg-charcoal-950 border border-sand-200 dark:border-slate-700 rounded-xl px-3 py-2 text-sm outline-none">
+                </div>
+                <div>
+                    <label class="text-xs font-bold text-slate-500">Ingredientes (Separados por comas)</label>
+                    <input required type="text" id="recipe-ingredients" placeholder="Arroz, Verduras, Caldo, Aceite" class="w-full mt-1 bg-cream-100 dark:bg-charcoal-950 border border-sand-200 dark:border-slate-700 rounded-xl px-3 py-2 text-sm outline-none">
+                </div>
+                <div class="flex justify-end gap-2 pt-3">
+                    <button type="button" onclick="closeModal('modal-recipe')" class="px-4 py-2 rounded-xl text-xs font-bold text-slate-400">Cancelar</button>
+                    <button type="submit" class="px-4 py-2 bg-terracotta-500 text-white rounded-xl text-xs font-bold shadow-md">Guardar Receta</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- MODAL: COMPRA -->
+    <div id="modal-shopping" class="fixed inset-0 z-50 hidden flex items-center justify-center p-4 bg-charcoal-900/50 backdrop-blur-sm">
+        <div class="glass-card bg-white dark:bg-charcoal-900 w-full max-w-md rounded-3xl p-6 shadow-2xl border border-sand-200 dark:border-slate-800 space-y-4">
+            <h3 class="text-lg font-bold">Añadir a la Compra</h3>
+            <form id="form-shopping" onsubmit="handleAddShopping(event)" class="space-y-3">
+                <div>
+                    <label class="text-xs font-bold text-slate-500">Producto</label>
+                    <input required type="text" id="shop-name" placeholder="Ej. Queso Parmesano" class="w-full mt-1 bg-cream-100 dark:bg-charcoal-950 border border-sand-200 dark:border-slate-700 rounded-xl px-3 py-2 text-sm outline-none">
+                </div>
+                <div class="grid grid-cols-2 gap-3">
+                    <div>
+                        <label class="text-xs font-bold text-slate-500">Pasillo / Sección</label>
+                        <select id="shop-cat" class="w-full mt-1 bg-cream-100 dark:bg-charcoal-950 border border-sand-200 dark:border-slate-700 rounded-xl px-3 py-2 text-sm outline-none">
+                            <option value="Frescos">Frescos</option>
+                            <option value="Despensa">Despensa</option>
+                            <option value="Limpieza">Limpieza / Hogar</option>
+                            <option value="Farmacia">Farmacia</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="text-xs font-bold text-slate-500">Precio Est. (€)</label>
+                        <input type="number" step="0.01" id="shop-price" placeholder="3.50" class="w-full mt-1 bg-cream-100 dark:bg-charcoal-950 border border-sand-200 dark:border-slate-700 rounded-xl px-3 py-2 text-sm outline-none">
+                    </div>
+                </div>
+                <div class="flex justify-end gap-2 pt-3">
+                    <button type="button" onclick="closeModal('modal-shopping')" class="px-4 py-2 rounded-xl text-xs font-bold text-slate-400">Cancelar</button>
+                    <button type="submit" class="px-4 py-2 bg-terracotta-500 text-white rounded-xl text-xs font-bold shadow-md">Guardar</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- MODAL: RUTINA -->
+    <div id="modal-routine" class="fixed inset-0 z-50 hidden flex items-center justify-center p-4 bg-charcoal-900/50 backdrop-blur-sm">
+        <div class="glass-card bg-white dark:bg-charcoal-900 w-full max-w-md rounded-3xl p-6 shadow-2xl border border-sand-200 dark:border-slate-800 space-y-4">
+            <h3 class="text-lg font-bold">Nueva Rutina / Hábito</h3>
+            <form id="form-routine" onsubmit="handleAddRoutine(event)" class="space-y-3">
+                <div>
+                    <label class="text-xs font-bold text-slate-500">Nombre del Hábito</label>
+                    <input required type="text" id="routine-name" placeholder="Ej. Meditar 10 minutos" class="w-full mt-1 bg-cream-100 dark:bg-charcoal-950 border border-sand-200 dark:border-slate-700 rounded-xl px-3 py-2 text-sm outline-none">
+                </div>
+                <div>
+                    <label class="text-xs font-bold text-slate-500">Momento del Día</label>
+                    <select id="routine-period" class="w-full mt-1 bg-cream-100 dark:bg-charcoal-950 border border-sand-200 dark:border-slate-700 rounded-xl px-3 py-2 text-sm outline-none">
+                        <option value="morning">Mañana ☀️</option>
+                        <option value="evening">Noche 🌙</option>
+                    </select>
+                </div>
+                <div class="flex justify-end gap-2 pt-3">
+                    <button type="button" onclick="closeModal('modal-routine')" class="px-4 py-2 rounded-xl text-xs font-bold text-slate-400">Cancelar</button>
+                    <button type="submit" class="px-4 py-2 bg-terracotta-500 text-white rounded-xl text-xs font-bold shadow-md">Guardar Rutina</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- MODAL: MEDICINA -->
+    <div id="modal-med" class="fixed inset-0 z-50 hidden flex items-center justify-center p-4 bg-charcoal-900/50 backdrop-blur-sm">
+        <div class="glass-card bg-white dark:bg-charcoal-900 w-full max-w-md rounded-3xl p-6 shadow-2xl border border-sand-200 dark:border-slate-800 space-y-4">
+            <h3 class="text-lg font-bold">Registrar Medicina</h3>
+            <form id="form-med" onsubmit="handleAddMed(event)" class="space-y-3">
+                <div>
+                    <label class="text-xs font-bold text-slate-500">Medicamento</label>
+                    <input required type="text" id="med-name" placeholder="Ej. Paracetamol" class="w-full mt-1 bg-cream-100 dark:bg-charcoal-950 border border-sand-200 dark:border-slate-700 rounded-xl px-3 py-2 text-sm outline-none">
+                </div>
+                <div class="grid grid-cols-2 gap-3">
+                    <div>
+                        <label class="text-xs font-bold text-slate-500">Dosis</label>
+                        <input required type="text" id="med-dose" placeholder="Ej. 1 Pastilla" class="w-full mt-1 bg-cream-100 dark:bg-charcoal-950 border border-sand-200 dark:border-slate-700 rounded-xl px-3 py-2 text-sm outline-none">
+                    </div>
+                    <div>
+                        <label class="text-xs font-bold text-slate-500">Hora Toma</label>
+                        <input required type="time" id="med-time" class="w-full mt-1 bg-cream-100 dark:bg-charcoal-950 border border-sand-200 dark:border-slate-700 rounded-xl px-3 py-2 text-sm outline-none">
+                    </div>
+                </div>
+                <div class="grid grid-cols-2 gap-3">
+                    <div>
+                        <label class="text-xs font-bold text-slate-500">Stock (Unidades)</label>
+                        <input required type="number" id="med-stock" placeholder="20" class="w-full mt-1 bg-cream-100 dark:bg-charcoal-950 border border-sand-200 dark:border-slate-700 rounded-xl px-3 py-2 text-sm outline-none">
+                    </div>
+                    <div>
+                        <label class="text-xs font-bold text-slate-500">Fecha Caducidad</label>
+                        <input type="date" id="med-expiry" class="w-full mt-1 bg-cream-100 dark:bg-charcoal-950 border border-sand-200 dark:border-slate-700 rounded-xl px-3 py-2 text-sm outline-none">
+                    </div>
+                </div>
+                <div class="flex justify-end gap-2 pt-3">
+                    <button type="button" onclick="closeModal('modal-med')" class="px-4 py-2 rounded-xl text-xs font-bold text-slate-400">Cancelar</button>
+                    <button type="submit" class="px-4 py-2 bg-terracotta-500 text-white rounded-xl text-xs font-bold shadow-md">Guardar</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- MODAL: PROYECTO -->
+    <div id="modal-project" class="fixed inset-0 z-50 hidden flex items-center justify-center p-4 bg-charcoal-900/50 backdrop-blur-sm">
+        <div class="glass-card bg-white dark:bg-charcoal-900 w-full max-w-md rounded-3xl p-6 shadow-2xl border border-sand-200 dark:border-slate-800 space-y-4">
+            <h3 class="text-lg font-bold">Nuevo Proyecto del Hogar</h3>
+            <form id="form-project" onsubmit="handleAddProject(event)" class="space-y-3">
+                <div>
+                    <label class="text-xs font-bold text-slate-500">Nombre del Proyecto</label>
+                    <input required type="text" id="proj-title" placeholder="Ej. Pintar pared del salón" class="w-full mt-1 bg-cream-100 dark:bg-charcoal-950 border border-sand-200 dark:border-slate-700 rounded-xl px-3 py-2 text-sm outline-none">
+                </div>
+                <div>
+                    <label class="text-xs font-bold text-slate-500">Descripción / Detalles</label>
+                    <textarea id="proj-desc" placeholder="Comprar pintura beige, pinceles y cinta..." class="w-full mt-1 bg-cream-100 dark:bg-charcoal-950 border border-sand-200 dark:border-slate-700 rounded-xl px-3 py-2 text-sm outline-none h-20"></textarea>
+                </div>
+                <div class="flex justify-end gap-2 pt-3">
+                    <button type="button" onclick="closeModal('modal-project')" class="px-4 py-2 rounded-xl text-xs font-bold text-slate-400">Cancelar</button>
+                    <button type="submit" class="px-4 py-2 bg-terracotta-500 text-white rounded-xl text-xs font-bold shadow-md">Guardar Proyecto</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- App JavaScript Engine -->
+    <script src="js/app.js"></script>
+</body>
+</html>
